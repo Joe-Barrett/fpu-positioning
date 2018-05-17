@@ -9,18 +9,8 @@ class CircleFinder:
         print('Hello from CircleFinder')
 
     def _edge_detect(self, image):
-        image = cv2.Canny(image, 190, 200, apertureSize=3)
-        return image
-
-    def _hough_circles(self, image):
-        return cv2.HoughCircles(image, cv2.HOUGH_GRADIENT, 2.5, 100)
-
-    def _draw_hough_circles(self, circles, image):
-        for i in circles[0, :]:
-            # draw the outer circle
-            cv2.circle(image, (i[0], i[1]), i[2], (0, 255, 0), 2)
-            # draw the center of the circle
-            cv2.circle(image, (i[0], i[1]), 2, (0, 0, 255), 3)
+        image = cv2.GaussianBlur(image, (5, 5), 0)
+        image = cv2.Canny(image, 0, 150, apertureSize=3)
         return image
 
     def _find_contours(self, image):
@@ -28,15 +18,40 @@ class CircleFinder:
                       key=cv2.contourArea,
                       reverse=True)[:2]
 
+    def _get_centres(self, contours):
+        centres = {}
+        for i, contour in enumerate(contours):
+            M = cv2.moments(contour)
+            circle = ''
+            if i is 0:
+                circle = 'A'
+            else:
+                circle = 'B'
+            centre = (M['m10'] / M['m00'], M['m01'] / M['m00'])
+            centres[circle] = centre
+        return centres
+
     def _draw_contours(self, contours, image):
-        return cv2.drawContours(image, contours, -1, (0, 255, 0), 3)
+        for i, contour in enumerate(contours):
+            M = cv2.moments(contour)
+            contourX = int(M['m10'] / M['m00'])
+            contourY = int(M['m01'] / M['m00'])
+            cv2.drawContours(image, [contour], -1, (0, 255, 0), 2)
+            cv2.circle(image, (contourX, contourY), 7, (255, 255, 255), -1)
+        return image
+
+    def get_data(self, path):
+        image = image_utils.load_image(path)
+        edged = self._edge_detect(image)
+        contours = self._find_contours(edged)
+        centres = self._get_centres(contours)
+        line_a = '{}, A, {}, {}'.format(path.split('/')[-1], centres['A'][0], centres['A'][1])
+        line_b = '{}, B, {}, {}'.format(path.split('/')[-1], centres['B'][0], centres['B'][1])
+        return '\n'.join([line_a, line_b])
 
     def find_circles(self, path):
         image = image_utils.load_image(path)
         edged = self._edge_detect(image)
-        contours = self._find_contours(edged.copy())
+        contours = self._find_contours(edged)
         drawn = self._draw_contours(contours, image)
-        image_utils.show_image(drawn)
-        # circles = self._hough_circles(edged)
-        # circled_image = self._draw_hough_circles(circles, image)
-        # image_utils.show_image(image=circled_image, delay=20)
+        image_utils.show_image(drawn, delay=20)

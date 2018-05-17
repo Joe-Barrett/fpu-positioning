@@ -7,8 +7,10 @@ _image_dir = 'Commissioning/Position test 1/'
 def main():
     files = os.listdir(_image_dir)
     cf = CircleFinder()
-    for file in files:
-        cf.find_circles(_image_dir + file)
+    with open('output.csv', 'w') as csv:
+        csv.write('file, circle, x, y\n')
+        for file in files:
+            csv.write(cf.get_data(_image_dir + file) + '\n')
 
 
 if __name__ == '__main__':
