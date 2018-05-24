@@ -21,6 +21,11 @@ def main():
                         required=False,
                         default='output.txt',
                         help='The filename for the output file, will save in provided image directory')
+    parser.add_argument('-v',
+                        '--visual',
+                        action='store_true',
+                        required=False,
+                        help='Run in visual mode')
     args = parser.parse_args()
     if len(sys.argv) is 1:
         parser.print_help()
@@ -28,9 +33,11 @@ def main():
     if args.directory[-1] is not '/':
         args.directory = args.directory + '/'
     print(args.directory)
-    cf = CircleFinder()
+    cf = CircleFinder(visual_mode=args.visual)
     output_filepath = '/'.join([args.directory, args.output])
+    print('Getting file list')
     files = [f for f in os.listdir(args.directory) if '.txt' not in f]
+    print('Running')
     with open(output_filepath, 'w') as csv:
         csv.write('file, circle, x, y\n')
         for file in files:
