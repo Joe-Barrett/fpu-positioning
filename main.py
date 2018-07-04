@@ -36,10 +36,10 @@ def main():
     cf = CircleFinder(visual_mode=args.visual)
     output_filepath = '/'.join([args.directory, args.output])
     print('Getting file list')
-    files = [f for f in os.listdir(args.directory) if '.txt' not in f]
+    files = [f for f in os.listdir(args.directory) if '.txt' not in f and 'edges' not in f]
     print('Running')
     with open(output_filepath, 'w') as csv:
-        csv.write('file, circle, x, y\n')
+        csv.write('file, circle, x, y, metric\n')
         for file in files:
             csv.write(cf.get_data(args.directory + file) + '\n')
 
