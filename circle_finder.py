@@ -66,6 +66,9 @@ class CircleFinder:
     def get_data(self, path):
         image = image_utils.load_image(path)
         edged = self._edge_detect(image)
+        *rest, filename = path.split('/')
+        name, suffix = filename.split('.')
+        image_utils.save_image(edged, '/'.join(rest+['.'.join([name+'_edges', suffix])]))
         contours = self._find_contours(edged)
         centres = self._get_centres(contours, image)
         line_a = '{}, A, {}, {}, {}'.format(path.split('/')[-1],
