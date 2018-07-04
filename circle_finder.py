@@ -11,7 +11,7 @@ class CircleFinder:
     @staticmethod
     def _edge_detect(image):
         image = cv2.GaussianBlur(image, (5, 5), 0)
-        image = cv2.Canny(image, 0, 150, apertureSize=3)
+        image = cv2.Canny(image, 50, 90, apertureSize=3)
         return image
 
     @staticmethod
